@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tracepoint — Digital Investigation &amp; Evidence Management System</title>
+  <meta name="description" content="Frontend prototype of a digital investigation and evidence management system (DBMS capstone project). Demonstration data only.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3l11 4v8c0 7-4.6 12.2-11 14C9.6 27.2 5 22 5 15V7z' fill='%231d4f91'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== Icon sprite ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-logo" viewBox="0 0 32 32"><path d="M16 3l11 4v8c0 7-4.6 12.2-11 14C9.6 27.2 5 22 5 15V7z"/><path d="M10.8 15.2c0-2.9 2.3-5.2 5.2-5.2s5.2 2.3 5.2 5.2M13.2 16.8c0-1.5 1.3-2.8 2.8-2.8s2.8 1.3 2.8 2.8c0 3-.7 5-1.8 6.8M16 17v2.4M10.8 18.2c0 2.1-.4 3.7-1.2 5M19.6 20.4c-.3 1.1-.7 2.1-1.2 3"/></symbol>
+  <symbol id="i-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/></symbol>
+  <symbol id="i-chain" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-transfer" viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.2v.1"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.1"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4"/></symbol>
+</svg>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<div class="app">
+
+  <!-- ===================== Sidebar ===================== -->
+  <aside class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="brand">
+      <span class="brand-mark"><svg class="icon icon-logo" aria-hidden="true"><use href="#i-logo"/></svg></span>
+      <span class="brand-text">
+        <span class="brand-name">TRACEPOINT</span>
+        <span class="brand-sub">Digital Investigation Suite</span>
+      </span>
+    </div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <p class="nav-label">Workspace</p>
+      <a class="nav-link" href="#overview" data-view="overview"><svg class="icon" aria-hidden="true"><use href="#i-overview"/></svg><span>Overview</span></a>
+      <a class="nav-link" href="#cases" data-view="cases"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg><span>Investigation Cases</span><span class="nav-count" id="navCases"></span></a>
+      <a class="nav-link" href="#evidence" data-view="evidence"><svg class="icon" aria-hidden="true"><use href="#i-archive"/></svg><span>Evidence Registry</span><span class="nav-count" id="navEvidence"></span></a>
+      <a class="nav-link" href="#devices" data-view="devices"><svg class="icon" aria-hidden="true"><use href="#i-device"/></svg><span>Devices</span><span class="nav-count" id="navDevices"></span></a>
+      <a class="nav-link" href="#investigators" data-view="investigators"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg><span>Investigators</span><span class="nav-count" id="navInvestigators"></span></a>
+      <p class="nav-label">Records</p>
+      <a class="nav-link" href="#custody" data-view="custody"><svg class="icon" aria-hidden="true"><use href="#i-chain"/></svg><span>Chain of Custody</span></a>
+      <a class="nav-link" href="#notes" data-view="notes"><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg><span>Case Notes</span></a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <span class="dev-tag">Development Preview</span>
+      <p class="tagline">Every case has a trail. Every piece of evidence has a history.</p>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ===================== Main column ===================== -->
+  <div class="main-col">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></button>
+
+      <nav class="crumb" aria-label="Breadcrumb">
+        <span>Workspace</span><span class="crumb-sep">/</span><span class="crumb-current" id="crumb">Overview</span>
+      </nav>
+
+      <div class="topbar-tools">
+        <div class="search" id="searchWrap">
+          <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <input type="search" id="globalSearch" placeholder="Search cases, evidence, devices" autocomplete="off" aria-label="Search cases, evidence and devices">
+          <kbd class="kbd" aria-hidden="true">/</kbd>
+          <div class="search-results" id="searchResults" hidden></div>
+        </div>
+
+        <div class="pop-wrap">
+          <button class="icon-btn" id="bellBtn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg>
+            <span class="bell-badge" id="bellBadge" hidden>0</span>
+          </button>
+          <div class="popover notif-pop" id="notifPopover" hidden>
+            <div class="popover-head"><strong>Notifications</strong><button type="button" class="link-btn" id="markRead">Mark all as read</button></div>
+            <div id="notifList"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="button" data-open-modal="caseModal"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg><span>New Case</span></button>
+
+        <div class="pop-wrap">
+          <button class="profile" id="profileBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="avatar av-0">IA</span>
+            <span class="profile-text"><span class="profile-name">Investigation Analyst</span><span class="profile-role">Demo session</span></span>
+          </button>
+          <div class="popover profile-pop" id="profileMenu" hidden>
+            <button type="button" class="menu-item" id="aboutBtn"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>About this demo</button>
+            <button type="button" class="menu-item danger" id="resetBtn"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg>Reset demo data</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="content" tabindex="-1">
+
+      <!-- ================= OVERVIEW ================= -->
+      <section class="view" id="view-overview" aria-labelledby="h-overview">
+        <div class="page-head">
+          <div>
+            <h1 id="h-overview">Investigation Overview</h1>
+            <p class="page-sub">A consolidated view of active investigations and evidence activity.</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <button class="stat" type="button" data-go="cases">
+            <span class="stat-icon tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg></span>
+            <span class="stat-label">Active Cases</span>
+            <span class="stat-value" id="statCases">0</span>
+            <span class="stat-sub" id="statCasesSub"></span>
+          </button>
+          <button class="stat" type="button" data-go="evidence">
+            <span class="stat-icon tone-teal"><svg class="icon" aria-hidden="true"><use href="#i-archive"/></svg></span>
+            <span class="stat-label">Evidence Items</span>
+            <span class="stat-value" id="statEvidence">0</span>
+            <span class="stat-sub" id="statEvidenceSub"></span>
+          </button>
+          <button class="stat" type="button" data-go="investigators">
+            <span class="stat-icon tone-slate"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg></span>
+            <span class="stat-label">Assigned Investigators</span>
+            <span class="stat-value" id="statInvestigators">0</span>
+            <span class="stat-sub" id="statInvestigatorsSub"></span>
+          </button>
+          <button class="stat" type="button" data-go="evidence" data-status="Transfer Pending">
+            <span class="stat-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-transfer"/></svg></span>
+            <span class="stat-label">Pending Transfers</span>
+            <span class="stat-value" id="statTransfers">0</span>
+            <span class="stat-sub" id="statTransfersSub"></span>
+          </button>
+        </div>
+
+        <div class="dash-grid">
+          <article class="card span-8">
+            <header class="card-head">
+              <div><h2>Recent Investigations</h2><p class="card-sub">Most recently updated active cases</p></div>
+              <button type="button" class="link-btn" data-go="cases">View all cases <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </header>
+            <div class="table-wrap">
+              <table class="data-table" id="recentTable">
+                <thead><tr><th>Case ID</th><th>Case Title</th><th>Priority</th><th>Lead Investigator</th><th class="num">Evidence</th><th>Last Updated</th><th>Status</th></tr></thead>
+                <tbody id="recentBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card span-4">
+            <header class="card-head">
+              <div><h2>Pending Actions</h2><p class="card-sub" id="pendingCount"></p></div>
+            </header>
+            <ul class="action-list" id="pendingList"></ul>
+          </article>
+
+          <article class="card span-7">
+            <header class="card-head">
+              <div><h2>Evidence Activity</h2><p class="card-sub">Registrations, transfers and notes</p></div>
+              <button type="button" class="link-btn" data-go="custody">Chain of custody <svg class="icon icon-sm" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </header>
+            <ul class="feed" id="activityList"></ul>
+          </article>
+
+          <article class="card span-5">
+            <header class="card-head">
+              <div><h2>Investigation Workload</h2><p class="card-sub">Active cases only</p></div>
+              <div class="seg" role="group" aria-label="Group workload by">
+                <button type="button" class="seg-btn" data-mode="status" aria-pressed="true">Status</button>
+                <button type="button" class="seg-btn" data-mode="priority" aria-pressed="false">Priority</button>
+              </div>
+            </header>
+            <div class="workload" id="workloadBody"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= CASES ================= -->
+      <section class="view" id="view-cases" aria-labelledby="h-cases" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-cases">Investigation Cases</h1>
+            <p class="page-sub">Open, review and update investigations across the workspace.</p>
+          </div>
+          <button class="btn btn-primary" type="button" data-open-modal="caseModal"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>New Case</button>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="input-icon grow">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="caseSearch" placeholder="Search by case ID or title" aria-label="Search cases">
+            </div>
+            <select id="caseStatus" class="select" aria-label="Filter by status"></select>
+            <select id="casePriority" class="select" aria-label="Filter by priority"></select>
+            <button type="button" class="btn btn-ghost" id="caseClear">Clear</button>
+          </div>
+          <div class="chip-row" id="caseChips" hidden></div>
+          <div class="table-wrap" id="casesTableWrap">
+            <table class="data-table" id="casesTable">
+              <thead><tr>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="id">Case ID<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="title">Case Title<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="priority">Priority<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="lead">Lead Investigator<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th class="num"><button type="button" class="th-sort" data-table="cases" data-key="evidence">Evidence<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="updated">Last Updated<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="cases" data-key="status">Status<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th class="actions-col"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody id="casesBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="casesEmpty" hidden>
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-folder"/></svg>
+            <h3>No cases match these filters</h3>
+            <p>Try a different search term or clear the filters.</p>
+            <button type="button" class="btn" id="caseEmptyClear">Clear filters</button>
+          </div>
+          <footer class="table-foot"><span id="caseCount"></span></footer>
+        </div>
+      </section>
+
+      <!-- ================= EVIDENCE ================= -->
+      <section class="view" id="view-evidence" aria-labelledby="h-evidence" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-evidence">Evidence Registry</h1>
+            <p class="page-sub">Searchable inventory of registered evidence items and their current status.</p>
+          </div>
+          <button class="btn btn-primary" type="button" id="addEvidenceBtn"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Add Evidence</button>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="input-icon grow">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="evSearch" placeholder="Search by ID, description, case or device" aria-label="Search evidence">
+            </div>
+            <select id="evType" class="select" aria-label="Filter by evidence type"></select>
+            <select id="evStatus" class="select" aria-label="Filter by evidence status"></select>
+            <button type="button" class="btn btn-ghost" id="evClear">Clear</button>
+          </div>
+          <div class="table-wrap" id="evTableWrap">
+            <table class="data-table" id="evTable">
+              <thead><tr>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="id">Evidence ID<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="type">Evidence Type<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th>Description</th>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="case">Associated Case<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="device">Source Device<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="date">Collection Date<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th><button type="button" class="th-sort" data-table="evidence" data-key="status">Evidence Status<svg class="icon icon-sm" aria-hidden="true"><use href="#i-sort"/></svg></button></th>
+                <th class="actions-col"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody id="evBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="evEmpty" hidden>
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-archive"/></svg>
+            <h3>No evidence items found</h3>
+            <p>No registered evidence matches the current search and filters.</p>
+            <button type="button" class="btn" id="evEmptyClear">Clear filters</button>
+          </div>
+          <footer class="table-foot"><span id="evCount"></span></footer>
+        </div>
+      </section>
+
+      <!-- ================= DEVICES ================= -->
+      <section class="view" id="view-devices" aria-labelledby="h-devices" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-devices">Devices</h1>
+            <p class="page-sub">Registered devices linked to investigations. All identifiers are invented demonstration values.</p>
+          </div>
+          <button class="btn btn-primary" type="button" data-open-modal="deviceModal"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Register Device</button>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="input-icon grow">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="devSearch" placeholder="Search by device ID, type, identifier or case" aria-label="Search devices">
+            </div>
+            <select id="devStatus" class="select" aria-label="Filter by registration status"></select>
+            <button type="button" class="btn btn-ghost" id="devClear">Clear</button>
+          </div>
+          <div class="table-wrap" id="devTableWrap">
+            <table class="data-table" id="devTable">
+              <thead><tr><th>Device ID</th><th>Device Type</th><th>Device Identifier</th><th>Associated Case</th><th class="num">Evidence Count</th><th>Registration Status</th></tr></thead>
+              <tbody id="devBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="devEmpty" hidden>
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-device"/></svg>
+            <h3>No devices found</h3>
+            <p>Nothing matches your search. Register a device if it is not listed.</p>
+            <button type="button" class="btn" id="devEmptyClear">Clear filters</button>
+          </div>
+          <footer class="table-foot"><span id="devCount"></span></footer>
+        </div>
+      </section>
+
+      <!-- ================= INVESTIGATORS ================= -->
+      <section class="view" id="view-investigators" aria-labelledby="h-investigators" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-investigators">Investigators</h1>
+            <p class="page-sub">Directory of fictional investigators with current case assignments.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="input-icon grow">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="invSearch" placeholder="Search by name, role or ID" aria-label="Search investigators">
+            </div>
+            <select id="invLoad" class="select" aria-label="Filter by workload"></select>
+            <button type="button" class="btn btn-ghost" id="invClear">Clear</button>
+          </div>
+          <div class="table-wrap" id="invTableWrap">
+            <table class="data-table" id="invTable">
+              <thead><tr><th>Investigator</th><th>Role</th><th class="num">Assigned Cases</th><th>Workload</th><th>Contact</th><th class="actions-col"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="invBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="invEmpty" hidden>
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-users"/></svg>
+            <h3>No investigators found</h3>
+            <p>Adjust the search or workload filter.</p>
+            <button type="button" class="btn" id="invEmptyClear">Clear filters</button>
+          </div>
+          <footer class="table-foot"><span id="invCount"></span></footer>
+        </div>
+      </section>
+
+      <!-- ================= CHAIN OF CUSTODY ================= -->
+      <section class="view" id="view-custody" aria-labelledby="h-custody" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-custody">Chain of Custody</h1>
+            <p class="page-sub">Select an evidence item to review who held it, when, and why.</p>
+          </div>
+          <button class="btn btn-primary" type="button" id="recordTransferBtn"><svg class="icon" aria-hidden="true"><use href="#i-transfer"/></svg>Record Transfer</button>
+        </div>
+
+        <div class="split">
+          <aside class="card split-list" aria-label="Evidence list">
+            <div class="toolbar">
+              <div class="input-icon grow">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                <input type="search" id="cocSearch" placeholder="Find evidence" aria-label="Find evidence item">
+              </div>
+            </div>
+            <div class="list-meta" id="cocCount"></div>
+            <ul class="pick-list" id="cocList"></ul>
+          </aside>
+          <div class="split-main" id="cocDetail"></div>
+        </div>
+      </section>
+
+      <!-- ================= CASE NOTES ================= -->
+      <section class="view" id="view-notes" aria-labelledby="h-notes" hidden>
+        <div class="page-head">
+          <div>
+            <h1 id="h-notes">Case Notes</h1>
+            <p class="page-sub">Working notes recorded against each investigation.</p>
+          </div>
+        </div>
+
+        <div class="split">
+          <aside class="card split-list" aria-label="Cases">
+            <div class="toolbar">
+              <div class="input-icon grow">
+                <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                <input type="search" id="noteSearch" placeholder="Find case" aria-label="Find case">
+              </div>
+            </div>
+            <div class="list-meta" id="noteCaseCount"></div>
+            <ul class="pick-list" id="noteCaseList"></ul>
+          </aside>
+
+          <div class="split-main" id="noteMain">
+            <div id="noteHeader"></div>
+
+            <form class="card note-form" id="noteForm" novalidate>
+              <header class="card-head"><div><h2>Add a note</h2><p class="card-sub" id="noteFormCase"></p></div></header>
+              <div class="note-form-body">
+                <div class="form-row">
+                  <div class="field">
+                    <label for="noteAuthor">Author <span class="req">*</span></label>
+                    <select id="noteAuthor" class="select"></select>
+                    <p class="field-error" hidden></p>
+                  </div>
+                  <div class="field">
+                    <label for="noteType">Note type <span class="req">*</span></label>
+                    <select id="noteType" class="select"></select>
+                    <p class="field-error" hidden></p>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="noteText">Note <span class="req">*</span></label>
+                  <textarea id="noteText" rows="3" maxlength="600" placeholder="Record an observation, finding or follow-up action"></textarea>
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="form-foot">
+                  <span class="hint">Timestamp is added automatically when the note is saved.</span>
+                  <button class="btn btn-primary" type="submit">Add note</button>
+                </div>
+              </div>
+            </form>
+
+            <div id="noteThread"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="app-footer">
+        <p><strong>Demonstration data.</strong> All cases, people, devices and identifiers shown are fictional and exist only in this browser. Changes are held in temporary browser storage (localStorage), not a database.</p>
+        <p>Tracepoint · Digital Investigation &amp; Evidence Management System · DBMS capstone, initial frontend preview.</p>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<!-- ===================== Case detail drawer ===================== -->
+<div class="drawer-overlay" id="drawerOverlay" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <div id="drawerBody"></div>
+</aside>
+
+<!-- ===================== Modals ===================== -->
+<div class="modal" id="caseModal" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="caseModalTitle">New Investigation Case</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <form id="caseForm" novalidate>
+      <div class="modal-body">
+        <div class="field">
+          <label for="cTitle">Case title <span class="req">*</span></label>
+          <input id="cTitle" type="text" maxlength="80" placeholder="e.g. Suspicious Login Pattern Review">
+          <p class="field-error" hidden></p>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="cType">Case type <span class="req">*</span></label>
+            <select id="cType" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="cPriority">Priority <span class="req">*</span></label>
+            <select id="cPriority" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="cStart">Start date <span class="req">*</span></label>
+            <input id="cStart" type="date">
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="cLead">Lead investigator <span class="req">*</span></label>
+            <select id="cLead" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cDesc">Description <span class="req">*</span></label>
+          <textarea id="cDesc" rows="4" maxlength="500" placeholder="Summarise the reason for the investigation and its initial scope"></textarea>
+          <p class="field-error" hidden></p>
+        </div>
+      </div>
+      <footer class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn btn-primary">Create case</button></footer>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="evidenceModal" role="dialog" aria-modal="true" aria-labelledby="evidenceModalTitle" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="evidenceModalTitle">Add Evidence</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <form id="evidenceForm" novalidate>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="field">
+            <label for="eType">Evidence type <span class="req">*</span></label>
+            <select id="eType" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="eDate">Collection date <span class="req">*</span></label>
+            <input id="eDate" type="date">
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="eDesc">Description <span class="req">*</span></label>
+          <input id="eDesc" type="text" maxlength="120" placeholder="Short description of the item">
+          <p class="field-error" hidden></p>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="eCase">Associated case <span class="req">*</span></label>
+            <select id="eCase" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="eDevice">Source device <span class="req">*</span></label>
+            <select id="eDevice" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="eCustodian">Initial custodian <span class="req">*</span></label>
+          <select id="eCustodian" class="select"></select>
+          <p class="field-error" hidden></p>
+        </div>
+      </div>
+      <footer class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn btn-primary">Register evidence</button></footer>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="deviceModal" role="dialog" aria-modal="true" aria-labelledby="deviceModalTitle" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="deviceModalTitle">Register Device</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <form id="deviceForm" novalidate>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="field">
+            <label for="dType">Device type <span class="req">*</span></label>
+            <select id="dType" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="dStatus">Registration status <span class="req">*</span></label>
+            <select id="dStatus" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="dIdent">Device identifier <span class="req">*</span></label>
+            <input id="dIdent" type="text" maxlength="40" placeholder="e.g. WS-OPS-0731">
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="dSerial">Serial reference <span class="opt">(optional)</span></label>
+            <input id="dSerial" type="text" maxlength="40" placeholder="Demo values only">
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="dCase">Associated case <span class="req">*</span></label>
+          <select id="dCase" class="select"></select>
+          <p class="field-error" hidden></p>
+        </div>
+        <p class="hint">Use invented values only. Do not enter real serial numbers or personal information.</p>
+      </div>
+      <footer class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn btn-primary">Register device</button></footer>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="transferModal" role="dialog" aria-modal="true" aria-labelledby="transferModalTitle" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="transferModalTitle">Record Transfer</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <form id="transferForm" novalidate>
+      <div class="modal-body">
+        <div class="field">
+          <label for="tEvidence">Evidence ID <span class="req">*</span></label>
+          <select id="tEvidence" class="select"></select>
+          <p class="field-error" hidden></p>
+          <p class="hint" id="tHint"></p>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="tFrom">From investigator <span class="req">*</span></label>
+            <select id="tFrom" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="tTo">To investigator <span class="req">*</span></label>
+            <select id="tTo" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="tWhen">Transfer date and time <span class="req">*</span></label>
+            <input id="tWhen" type="datetime-local">
+            <p class="field-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="tPurpose">Purpose <span class="req">*</span></label>
+            <select id="tPurpose" class="select"></select>
+            <p class="field-error" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="tRemarks">Remarks <span class="opt">(optional)</span></label>
+          <textarea id="tRemarks" rows="3" maxlength="300" placeholder="Condition of item, seal reference, handover notes"></textarea>
+          <p class="field-error" hidden></p>
+        </div>
+        <p class="hint">Simulated record for the frontend demo. It is not a forensic verification.</p>
+      </div>
+      <footer class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn btn-primary">Record transfer</button></footer>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="aboutModalTitle">About this demo</h2><button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body about">
+      <p><strong>Digital Investigation &amp; Evidence Management System</strong></p>
+      <p class="tagline-dark">Every case has a trail. Every piece of evidence has a history.</p>
+      <p>This is the initial frontend prototype of a B.Tech CSE (AI/ML) DBMS capstone project. It is built with HTML, CSS and vanilla JavaScript.</p>
+      <ul class="plain-list">
+        <li>All data is fictional demonstration data.</li>
+        <li>There is no backend or database yet. Changes are kept in temporary browser storage (localStorage) so they survive a refresh.</li>
+        <li>Custody entries are simulated and are not forensic verification.</li>
+        <li>Planned stack: Node.js, Express.js and MySQL.</li>
+      </ul>
+    </div>
+    <footer class="modal-foot"><button type="button" class="btn btn-primary" data-close>Close</button></footer>
+  </div>
+</div>
+
+<div class="modal modal-sm" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg" hidden>
+  <div class="modal-box">
+    <header class="modal-head"><h2 id="confirmTitle">Confirm</h2></header>
+    <div class="modal-body"><p id="confirmMsg"></p></div>
+    <footer class="modal-foot"><button type="button" class="btn" id="confirmCancel">Cancel</button><button type="button" class="btn btn-primary" id="confirmOk">Confirm</button></footer>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
