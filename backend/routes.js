@@ -1,4 +1,3 @@
-
 const express = require("express");
 const { pool } = require("./db");
 const { requireLogin, requireAdmin } = require("./auth");
@@ -185,7 +184,7 @@ router.post("/devices", requireAdmin, asyncRoute(async (req, res) => {
   const r = await pool.query(`
     INSERT INTO devices (device_id, device_type, identifier, serial_reference, case_id, status)
     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *
-  `, [makeId("DEV"), device_type, identifier, serial_reference || null, case_id, status || "Registered"]);
+    `, [`DEV-${crypto.randomBytes(8).toString("hex").toUpperCase()}`, device_type, identifier, serial_reference || null, case_id, status || "Registered"]);
 
   res.status(201).json({ success: true, data: r.rows[0] });
 }));
