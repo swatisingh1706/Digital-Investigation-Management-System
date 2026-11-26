@@ -1,4 +1,3 @@
-
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { pool } = require("./db");
@@ -128,12 +127,63 @@ router.post("/login", asyncRoute(async (req, res) => {
   });
 }));
 
-router.get("/me", requireLogin, (req, res) => {
+
+router.get("/me", asyncRoute(async (req, res) => {
+  // Existing session: return the current user
+  if (req.session?.user) {
+    return res.json({
+      success: true,
+      user: req.session.user
+    });
+  }
+
+  // Automatically use an active ADMIN account
+  const result = await pool.query(
+    `SELECT user_id, username, system_role,
+            investigator_id, must_change_password
+     FROM users
+     WHERE system_role = 'ADMIN'
+       AND is_active = TRUE
+     ORDER BY user_id
+     LIMIT 1`
+  );
+
+  const admin = result.rows[0];
+
+  if (!admin) {
+    return res.status(503).json({
+      success: false,
+      message: "No active administrator account found."
+    });
+  }
+
+  // Create a new session
+  await new Promise((resolve, reject) => {
+    req.session.regenerate(err =>
+      err ? reject(err) : resolve()
+    );
+  });
+
+  req.session.user = {
+    user_id: admin.user_id,
+    username: admin.username,
+    system_role: "ADMIN",
+    investigator_id: admin.investigator_id,
+    must_change_password: admin.must_change_password
+  };
+
+  await new Promise((resolve, reject) => {
+    req.session.save(err =>
+      err ? reject(err) : resolve()
+    );
+  });
+
   res.json({
     success: true,
     user: req.session.user
   });
-});
+}));
+
 
 router.post("/logout", requireLogin, (req, res) => {
   req.session.destroy(err => {
